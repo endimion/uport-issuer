@@ -1,0 +1,52 @@
+version: '3'
+
+services:  
+   memcached:
+    image: sameersbn/memcached:1.5.6-2
+    ports:
+      - 11111:11211
+
+   academicId:
+    image: endimion13/amka-check
+    environment:
+      MINEDU_TOKEN_USERNAME: uaegean
+      MINEDU_TOKEN_PASSWORD: k6v5sS4l1s!%
+      MINEDU_TOKEN_GRANTTYPE: password
+      MINEDU_QUERYID_URL: https://gateway.interoperability.gr/academicId/1.0.1/queryID
+      MINEDU_QUERY_BY_AMKA: https://gateway.interoperability.gr/academicId/1.0.1/student/
+      MINEDU_TOKEN_URL: https://validation.interoperability.gr:9443/OAUTH2Proxy_1.0.0/services/oauthproxy/authorization/token
+      MEMCACHED_HOST: memcached
+      MEMCACHED_PORT: 11211
+      CALLBACK: http://localhost/issuer/academicId/check
+    ports:
+      - 8080:8080
+
+
+   uporthelper:
+    image: endimion13/uport-verifier
+    environment:
+      PRODUCTION: "true"
+      KEYCLOAK: https://e482db27.ngrok.io
+    ports:
+      - 3000:3000
+
+   uportissuer:
+    image: endimion13/uport-issuer
+    environment:
+      NODE_ENV: "production"
+      ENDPOINT: http://localhost:4000
+      HTTPS_COOKIES: "false"
+      MEMCACHED_URL: memcached:11211
+      BASE_PATH: "issuer"
+      ACADEMICID_TOKEN_END: http://nginx/academic-id-check/attributes
+    ports:
+      - 4000:3000
+
+   nginx: 
+     image: nginx:latest
+     container_name: production_nginx
+     volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf
+     ports:
+        - 80:80
+        - 443:443

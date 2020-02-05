@@ -1,0 +1,10 @@
+{
+    "realm": "test",
+    "auth-server-url": "https://dss1.aegean.gr/auth",
+    "ssl-required": "none",
+    "resource": "testClient2",
+    "credentials": {
+      "secret": "fff6237e-5bf1-4713-8926-023180eeb0f0"
+    },
+    "confidential-port": 0
+  }
