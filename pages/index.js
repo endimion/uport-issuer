@@ -21,6 +21,7 @@ import Layout from "../components/Layout";
 import { Button, Row, Col, Card } from "react-bootstrap";
 const jwt = require("jsonwebtoken");
 import { getPath } from "../helpers/pathHelper";
+import isMobile from "../helpers/isMobile";
 
 class Index extends React.Component {
   constructor(props) {
@@ -219,7 +220,31 @@ class Index extends React.Component {
 
     let isLeftEnabled = this.props.cardIndex > 1;
 
-    return (
+    let mobileCards = (
+      <Layout>
+        <Row style={{ marginTop: "3rem" }}>
+        <Col xs={1} style={{ marginTop: "auto", marginBottom: "auto" }}>
+          </Col>
+
+          <Col xs={10} className={"container"}>
+            <Row>
+              {cards
+                .map((card, indx) => {
+                  return (
+                    <Col key={indx} sm={4} xs={12}>
+                      {card}
+                    </Col>
+                  );
+                })}
+            </Row>
+          </Col>
+          <Col xs={1} style={{ marginTop: "auto", marginBottom: "auto" }}>
+          </Col>
+        </Row>
+      </Layout>
+    );
+
+    let desktopCards = (
       <Layout>
         <Row style={{ marginTop: "3rem" }}>
           <Col xs={1} style={{ marginTop: "auto", marginBottom: "auto" }}>
@@ -261,18 +286,14 @@ class Index extends React.Component {
             </Button>
           </Col>
         </Row>
-        {/* <Row>
-          <div>Hello {this.sessionData.eidas.currentGiverName}</div>
-          <Button onClick={this.clickMe} variant="primary">
-            Primary
-          </Button>
-          <SSE isServer={false} />
-          <Link href="/attribute-selector">
-            <Button variant="primary">Select Attributes</Button>
-          </Link>
-        </Row> */}
       </Layout>
     );
+
+    if (isMobile()) {
+      console.log("hey we are in mobile env!!");
+    }
+
+    return isMobile() ? mobileCards : desktopCards;
   }
 }
 
@@ -287,7 +308,7 @@ function mapStateToProps(state) {
     sessionData: state.sessionData,
     userSelection: state.userSelection, // the attributes selected by the user to be included in a VC,
     cardIndex: state.cardIndex,
-    baseUrl: state.baseUrl,
+    baseUrl: state.baseUrl
   };
 }
 

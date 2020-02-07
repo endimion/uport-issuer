@@ -46,8 +46,11 @@ function root(req, res) {
 // makes a QR code containing a uport Connection  request
 // and cachces which attirbutes are to be added to the VC after the user
 // accepts the conneciton request
+// if this is in a mobile enviroment an custom url containing the request
+// will be sent. This url will be sent to the OS using by the receiver of it
 function issueVC(req, res) {
   let requestedData = req.body.data;
+  let isMobile = req.body.isMobile ? true : false;
   // let sessionId = req.session.id;
   let fetchedData = req.session.userData;
   let matchingUserAttributes = generateCredentialModel(
@@ -55,7 +58,7 @@ function issueVC(req, res) {
     fetchedData
   );
   console.log(
-    `controllers.js:: the actual values that will be added to the vc are`
+    `controllers.js::  issueVC the actual values that will be added to the vc are`
   );
   console.log(matchingUserAttributes);
 
@@ -86,8 +89,15 @@ function issueVC(req, res) {
         message.messageToURI(requestToken),
         { callback_type: "post" }
       );
-      const qr = transports.ui.getImageDataURI(uri);
-      res.send({ qr: qr, uuid: uuid });
+
+      if (isMobile) {
+        // const urlTransport = transport.url.send()
+        // res.send((urlTransport(uri)));
+        res.send({ qr: uri, uuid: uuid });
+      } else {
+        const qr = transports.ui.getImageDataURI(uri);
+        res.send({ qr: qr, uuid: uuid });
+      }
     });
 }
 

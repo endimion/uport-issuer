@@ -322,7 +322,7 @@ export function decreaseCardIndex() {
   };
 }
 
-export function requestVCgeneration(url,selectedAttributes) {
+export function requestVCgeneration(url,selectedAttributes, isMobile=false) {
   return dispatch => {
     dispatch({ type: actionTypes.MAKE_QR_AUTH_REQUEST });
 
@@ -332,7 +332,8 @@ export function requestVCgeneration(url,selectedAttributes) {
     console.log("store.js:: will make VC generation request");
     axios
       .post(url, {
-        data: selectedAttributes
+        data: selectedAttributes,
+        isMobile: isMobile
       })
       .then(data => {
         console.log("got the data form the server");

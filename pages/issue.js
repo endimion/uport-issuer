@@ -5,9 +5,12 @@ import Layout from "../components/Layout";
 import QrPrompt from "../components/QrPrompt";
 import MyStepper from "../components/Stepper";
 import SSE from "../components/Sse";
-const jwt = require("jsonwebtoken");
+const message = require("uport-transports").message.util;
+const transport = require("uport-transports").transport;
 import { requestVCgeneration } from "../store";
 import { Button, Row, Col } from "react-bootstrap";
+import isMobile from "../helpers/isMobile";
+import Router from 'next/router'
 
 class Issue extends React.Component {
   constructor(props) {
@@ -28,7 +31,11 @@ class Issue extends React.Component {
 
   requestVC() {
     console.log(`will request the creation of a requestVC`);
-    this.props.makeIssueRequest(`${this.props.baseUrl}issueVCReq`,this.props.userSelection);
+    this.props.makeIssueRequest(
+      `${this.props.baseUrl}issueVCReq`,
+      this.props.userSelection,
+      isMobile()
+    );
   }
 
   render() {
@@ -68,17 +75,33 @@ class Issue extends React.Component {
         );
       }
 
-      if (this.props.qrData && !this.props.vcSent) {
+      if (this.props.qrData && isMobile()) {
+        const urlTransport = transport.url.send();
+        urlTransport(this.props.qrData);
+        // tranport.url.onResponse().then(res => {
+        //   const payload = res.payload;
+        //   const id = res.id;
+        //   console.log(
+        //     "issue.js:: got response in mobile!! how do we handle this??"
+        //   );
+        //   //after the response go back home!
+        //   Router.push('/home')
+        // });
+        Router.push(`${this.props.baseUrl}`)
+      }
 
-        let sseEndpoint = this.props.baseUrl? `${this.props.endpoint}/${this.props.baseUrl}`:this.props.endpoint
+      if (this.props.qrData && !this.props.vcSent) {
+        let sseEndpoint = this.props.baseUrl
+          ? `${this.props.endpoint}/${this.props.baseUrl}`
+          : this.props.endpoint;
         result = (
-          <div >
+          <div>
             <QrPrompt
               qrData={this.props.qrData}
               message={"SEAL is requesting to connect your uPort wallet:"}
               permissions={["Push Notifications"]}
             />
-            <SSE uuid={this.props.uuid} endpoint={sseEndpoint}/>
+            <SSE uuid={this.props.uuid} endpoint={sseEndpoint} />
           </div>
         );
       }
@@ -133,14 +156,14 @@ function mapStateToProps(state) {
     vcSent: state.vcSent,
     stepperSteps: state.stepperSteps,
     endpoint: state.endpoint,
-    baseUrl: state.baseUrl,
+    baseUrl: state.baseUrl
   };
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    makeIssueRequest: (url,data) => {
-      dispatch(requestVCgeneration(url,data));
+    makeIssueRequest: (url, data, isMobile = false) => {
+      dispatch(requestVCgeneration(url, data, isMobile));
     }
   };
 };
